@@ -1,17 +1,14 @@
 var dataset = {
-	"name": "25",
+	"value": 25,
 	"children": [
-	{ 
-		"name": "40",
-		"children": [
-		{ "name": "45" },
-		{ "name": "35" }
-		]
-	},
 	{ 	
-		"name": "10",
-		"children" : [
-			{ "name": "45" }
+		"value": 10,
+	},
+	{ 
+		"value": 40,
+		"children": [
+		{ "value": 45 },
+		{ "value": 35 }
 		]
 	}
 	]
@@ -54,18 +51,33 @@ BinaryTree.prototype.update = function(newElement) {
 		links = this.treemap(root).descendants().slice(1);
 
 	if (newElement) {
+
+		function recursiveTreeSearch(root, value) {
+			if (root.data.value == value || !root.children) {
+				d3.select(".insert-pointer")
+					.transition().delay(root.depth * 700).duration(500)
+					.attr("transform", "translate(" + root.x + "," + root.depth * 180 +")");
+				return 0;
+			}
+
+			d3.select(".insert-pointer")
+				.transition().delay(root.depth * 700).duration(500)
+				.attr("transform", "translate(" + root.x + "," + root.depth * 180 +")");
+
+			if (root.data.value > value) {
+				return recursiveTreeSearch(root.children[0], value);
+			} else {
+				return recursiveTreeSearch(root.children[1], value);
+			}
+		}
+
 		var updateElem = this.svg.append("circle")
+			.attr("class", "insert-pointer")
 			.attr("r", 12)
 			.attr("fill", "red")
-			.attr("transform", "translate(275,0)");
-
-		updateElem.transition()
-			.delay(700).duration(1200)
-			.attr("transform", "translate(150,180)")
-
-		updateElem.transition()
-			.delay(1900).duration(1200)
-			.attr("transform", "translate(200,360)")
+			.attr("transform", "translate(" + root.x + "," + root.y +")");
+		
+		recursiveTreeSearch(root, newElement);
 	}
 
 	// Normalize for fixed-depth.
