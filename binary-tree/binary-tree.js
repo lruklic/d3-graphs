@@ -1,23 +1,15 @@
-var dataset = {
-	"value": 25,
-	"children": [
-	{ 	
-		"value": 10,
-	},
-	{ 
-		"value": 40,
-		"children": [
-		{ "value": 45 },
-		{ "value": 35 }
-		]
-	}
-	]
-};
-
 window.onload = function() {
-	bTree = new BinaryTree(500, 500, dataset);
+	var dataset = tree().add(25).add(10).add(40).add(45).add(35);
+	bTree = new BinaryTree(500, 700, dataset);
 	bTree.update();
 };
+
+const BTREE_ANIMATION = {
+	"defaultWait" : 500,
+	"pointerMoveDuration" : 500,
+	"pointerMoveDelay" : 700,
+	"treeUpdateDuration" : 750
+}
 
 function BinaryTree(width, height, dataset) {
 
@@ -40,52 +32,114 @@ function BinaryTree(width, height, dataset) {
 
 BinaryTree.prototype.update = function(newElement) {
 
-	var i = 0;
-
 	// Compute the new tree layout.
-	var root = d3.hierarchy(this.dataset, function(d) { return d.children; });
+	var root = d3.hierarchy(this.dataset.toD3Format(), function(d) {
+		return d.children; 
+	});
 	root.x0 = this.height / 2;
 	root.y0 = 0;
 
-	var nodes = this.treemap(root).descendants(),
-		links = this.treemap(root).descendants().slice(1);
+	// Define nodes and links, filter out undefined
+	var nodes = this.treemap(root).descendants().filter(function(node) {return node.value == node.value}),
+		links = this.treemap(root).descendants().slice(1).filter(function(node) {return node.value == node.value});
+	
+	var pointerMoveTotal = 0;
 
 	if (newElement) {
 
+		var updateElement = this.svg.append("circle")
+			.attr("class", "insert-pointer")
+			.attr("r", 12)
+			.attr("fill", "red")
+
 		function recursiveTreeSearch(root, value) {
 			if (root.data.value == value || !root.children) {
+				pointerMoveTotal += root.depth * BTREE_ANIMATION.pointerMoveDelay + root.depth * BTREE_ANIMATION.pointerMoveDuration;
 				d3.select(".insert-pointer")
-					.transition().delay(root.depth * 700).duration(500)
+					.transition().delay(root.depth * BTREE_ANIMATION.pointerMoveDelay).duration(BTREE_ANIMATION.pointerMoveDuration)
 					.attr("transform", "translate(" + root.x + "," + root.depth * 180 +")");
 				return 0;
 			}
 
+			console.log(root.x + " " + root.y)
 			d3.select(".insert-pointer")
-				.transition().delay(root.depth * 700).duration(500)
+				.transition().delay(root.depth * BTREE_ANIMATION.pointerMoveDelay).duration(BTREE_ANIMATION.pointerMoveDuration)
 				.attr("transform", "translate(" + root.x + "," + root.depth * 180 +")");
 
 			if (root.data.value > value) {
-				return recursiveTreeSearch(root.children[0], value);
+				if (root.children[0] && root.children[0].value == root.children[0].value) {
+					return recursiveTreeSearch(root.children[0], value);
+				} else {
+					pointerMoveTotal += root.depth * BTREE_ANIMATION.pointerMoveDelay + root.depth * BTREE_ANIMATION.pointerMoveDuration;
+					return 0;
+				}
 			} else {
-				return recursiveTreeSearch(root.children[1], value);
+				if (root.children[1] && root.children[0].value == root.children[0].value) {
+					return recursiveTreeSearch(root.children[1], value);
+				} else {
+					pointerMoveTotal += root.depth * BTREE_ANIMATION.pointerMoveDelay + root.depth * BTREE_ANIMATION.pointerMoveDuration;
+					return 0;
+				}
 			}
 		}
 
-		var updateElem = this.svg.append("circle")
-			.attr("class", "insert-pointer")
-			.attr("r", 12)
-			.attr("fill", "red")
-			.attr("transform", "translate(" + root.x + "," + root.y +")");
+		updateElement.attr("transform", "translate(" + root.x + "," + root.y +")");
 		
 		recursiveTreeSearch(root, newElement);
 	}
 
-	// Normalize for fixed-depth.
-	nodes.forEach(function(d){ d.y = d.depth * 180});
+	if (newElement) {
+		this.dataset.add(newElement);
 
+		//var i = 0;
+		// Compute the new tree layout.
+		var root = d3.hierarchy(this.dataset.toD3Format(), function(d) {
+			//d.id = i++;
+			return d.children; 
+		});
+		root.x0 = this.height / 2;
+		root.y0 = 0;
+
+		// Define nodes and links, filter out undefined
+		var nodes = this.treemap(root).descendants().filter(function(node) {return node.value == node.value}),
+			links = this.treemap(root).descendants().slice(1).filter(function(node) {return node.value == node.value});
+		
+		var nodeIndex = 0;
+		var newNode = nodes.filter(function(node, j) {
+			if (node.value == newElement) {
+				nodeIndex = j;
+				return true;
+			} else {
+				return false;
+			}
+			
+		})[0];
+
+		var linkIndex = 0;
+		var newLink = links.filter(function(link, j) {
+			if (link.value == newElement) {
+				linkIndex = j;
+				return true;
+			} else {
+				return false;
+			}
+		})[0];
+
+		nodes.push(nodes.splice(nodeIndex, 1)[0]);
+		links.push(links.splice(linkIndex, 1)[0]);
+	}
+
+	// Normalize for fixed-depth.
+	nodes.forEach(function(d){ d.y = d.depth * 180; /*console.log(d.value)*/});
+
+	//console.log(nodes);
 	// Update the nodes...
 	var node = this.svg.selectAll('g.node')
-		.data(nodes, function(d) {return d.id || (d.id = ++i); });
+		.data(nodes, function(d) {
+			return d.value;
+		});
+
+	//console.log(node._enter[0].length);
 
 	// Enter any new modes at the parent's previous position.
 	var nodeEnter = node.enter().append('g')
@@ -95,12 +149,14 @@ BinaryTree.prototype.update = function(newElement) {
 		});
 
 	nodeEnter.append("circle")
+		.transition().delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait + BTREE_ANIMATION.treeUpdateDuration + BTREE_ANIMATION.pointerMoveDuration - 200)
 		.attr("r", 10)
 		.style("fill", "#fff");
 
-	  // Transition nodes to their new position.
+	// Transition nodes to their new position.
 	var nodeUpdate = node.transition()
-		.duration(750)
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.duration(BTREE_ANIMATION.treeUpdateDuration)
 		.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
 	// Add Circle for the nodes
@@ -111,20 +167,38 @@ BinaryTree.prototype.update = function(newElement) {
 			return d._children ? "lightsteelblue" : "#fff";
 		});
 
+	if (updateElement) {
+		updateElement.transition()
+			.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+			.duration(BTREE_ANIMATION.treeUpdateDuration)
+			.attr("transform", "translate(" + newNode.parent.x + "," + newNode.parent.y +")");
+		updateElement.transition()
+			.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait + BTREE_ANIMATION.treeUpdateDuration)
+			.duration(BTREE_ANIMATION.pointerMoveDuration)
+			.attr("transform", "translate(" + newNode.x + "," + newNode.y +")")
+			.style("opacity", 0)
+			.remove();
+	}
+
 	// Declare the links…
 	var link = this.svg.selectAll("path.link")
-		.data(links, function(d) { return d.id; });
+		.data(links, function(d) {
+			return d.value;
+		});
 
 	// Enter the links.
-	link.enter().insert("path", "g")
+	link.enter()
+		.insert("path", "g")
 		.attr("class", "link")
+		.transition().delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait + BTREE_ANIMATION.treeUpdateDuration + BTREE_ANIMATION.pointerMoveDuration)
 		.attr("d", function(d) {
 			return "M" + d.x + "," + d.y
 				+ "L" + d.parent.x + "," + d.parent.y;
       	});
 
 	link.transition()
-		.duration(750)
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.duration(BTREE_ANIMATION.treeUpdateDuration)
 		.attr("d", function(d) {
 			return "M" + d.x + "," + d.y
 				+ "L" + d.parent.x + "," + d.parent.y;
