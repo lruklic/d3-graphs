@@ -58,6 +58,50 @@ TreeJson.prototype.add = function(value) {
     }
 }
 
+TreeJson.prototype.remove = function(value) {
+    if (!this.array) this.array = [];
+        
+    if (this.array.length == 0) {
+        return 0;
+    } else {
+        removeRecursive(this.array, value);
+    }
+
+    function minValueNode(root) {
+        while (root[1]) root = root[1];
+        return root;
+    }
+
+    function removeRecursive(root, value) {
+        if (!root) return root;
+
+        if (value < root[0]) {
+            root[1] = removeRecursive(root[1], value);
+        } else if (value > root[0]) {
+            root[2] = removeRecursive(root[2], value)
+        } else {
+            if (!root[1]) {
+                var temp = root[2];
+                root = null;
+                return temp;
+            } else if (!root[2]) {
+                var temp = root[1];
+                root = null;
+                return temp;
+            }
+
+            var temp = minValueNode(root[2]);
+            root[0] = temp[0];
+            root[2] = removeRecursive(root[2], temp[0]);
+
+        }
+
+        return root;
+    }
+}
+
+
+
 /**
  * Converts TreeJson object to D3-compliant tree object with "value" and "children" parameters.
  */
