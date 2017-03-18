@@ -100,8 +100,6 @@ TreeJson.prototype.remove = function(value) {
     }
 }
 
-
-
 /**
  * Converts TreeJson object to D3-compliant tree object with "value" and "children" parameters.
  */
