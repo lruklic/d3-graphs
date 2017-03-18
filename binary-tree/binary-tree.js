@@ -8,7 +8,7 @@ const BTREE_ANIMATION = {
 	"appearDuration": 200,
 	"defaultWait": 500,
 	"pointerMoveDuration": 500,
-	"pointerMoveDelay": 700,
+	"pointerMoveDelay": 1200,
 	"treeUpdateDuration": 750
 }
 
@@ -17,11 +17,9 @@ const DISTANCE = {
 }
 
 function BinaryTree(width, height, dataset) {
-
 	this.width = width;
 	this.height = height;
 	this.dataset = dataset;
-	
 }
 
 BinaryTree.prototype.plotTree = function () {
@@ -47,18 +45,28 @@ BinaryTree.prototype.plotTree = function () {
 	nodes.forEach(function (d) { d.y = d.depth * DISTANCE.depthWidth; });
 
 	// Draw nodes
-	var node = this.svg.selectAll('g.node')
+	var nodes = this.svg.selectAll('g.node')
 		.data(nodes).enter()
 		.append('g')
 		.attr('class', 'node')
 		.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
-		.append("circle")
+		
+	nodes.append("circle")
 		.transition().delay(BTREE_ANIMATION.appearDuration)
 		.attr("r", 20)
 		.style("fill", "#fff");
 
+	nodes.append('text')
+		.attr('class', 'node-value')
+		.attr('dy', '.3em')
+		.attr('text-anchor', 'middle')
+		//.attr('x', function(d) {return d.x})
+		//.attr('y', function(d) {return d.y})
+		.transition().delay(BTREE_ANIMATION.appearDuration)		
+		.text(function (d) { return d.value;})
+
 	// Draw links
-	var link = this.svg.selectAll("path.link")
+	this.svg.selectAll("path.link")
 		.data(links).enter()
 		.insert("path", "g")
 		.attr("class", "link")
@@ -100,7 +108,91 @@ BinaryTree.prototype.search = function(newElement, moveArray) {
 	return recursiveTreeSearch(root, newElement);
 }
 
-BinaryTree.prototype.update = function (newElement) {
+BinaryTree.prototype.remove = function(removeValue) {
+
+	var root = this.treemap(d3.hierarchy(this.dataset.toD3Format(), function (d) { return d.children; }));
+
+	var pointerMoveTotal = 0;
+	var moveArray = [];
+
+	var removeElement = this.svg.append("circle")
+		.attr("class", "remove-pointer")
+		.attr("r", 17)
+		.attr("fill-opacity", 0)
+		.attr("stroke", "red")
+		.attr("stroke-width", "3px")
+		.attr("transform", "translate(" + root.x + "," + root.y + ")");
+	
+	this.search(removeValue, moveArray);
+
+	for (i = 0; i < moveArray.length; i++) {
+		d3.select(".remove-pointer")
+			.transition().delay(i * BTREE_ANIMATION.pointerMoveDelay).duration(BTREE_ANIMATION.pointerMoveDuration)
+			.attr("transform", "translate(" + moveArray[i] + "," + i * 180 + ")");
+	}
+	pointerMoveTotal += moveArray.length * BTREE_ANIMATION.pointerMoveDelay;
+
+	this.dataset.remove(removeValue);
+
+	// Compute the new tree layout.
+	var root = d3.hierarchy(this.dataset.toD3Format(), function (d) { return d.children; });
+	root.x0 = this.height / 2;
+	root.y0 = 0;
+
+	// Define nodes and links, filter out undefined
+	var nodes = this.treemap(root).descendants().filter(function (node) { return node.value == node.value }),
+		links = this.treemap(root).descendants().slice(1).filter(function (node) { return node.value == node.value });
+
+	// Normalize for fixed-depth.
+	nodes.forEach(function (d) { d.y = d.depth * DISTANCE.depthWidth; });
+	// Update the nodes...
+	var node = this.svg.selectAll('g.node')
+		.data(nodes, function (d) {
+			return d.value;
+		});
+
+	// Remove node with removed value.
+	var nodeExit = node.exit()
+		.transition()
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.style("r", 0)
+      	.remove();
+
+	// Transition nodes to their new position.
+	node.transition()
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.duration(BTREE_ANIMATION.treeUpdateDuration)
+		.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+	// Declare the links…
+	var link = this.svg.selectAll("path.link")
+		.data(links, function (d) {
+			return d.value;
+		});
+
+	// Enter the links.
+	link.exit()
+		.transition()
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.style("opacity", 0)
+		.remove();
+
+	link.transition()
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.duration(BTREE_ANIMATION.treeUpdateDuration)
+		.attr("d", function (d) {
+			return "M" + d.x + "," + d.y
+				+ "L" + d.parent.x + "," + d.parent.y;
+		});
+
+	removeElement.transition()
+		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
+		.style("opacity", 0)
+		.remove();
+
+}
+
+BinaryTree.prototype.add = function (newElement) {
 
 	var root = this.treemap(d3.hierarchy(this.dataset.toD3Format(), function (d) { return d.children; }));
 
@@ -109,8 +201,10 @@ BinaryTree.prototype.update = function (newElement) {
 
 	var updateElement = this.svg.append("circle")
 		.attr("class", "insert-pointer")
-		.attr("r", 18)
-		.attr("fill", "red")
+		.attr("r", 17)
+		.attr("fill-opacity", 0)
+		.attr("stroke", "red")
+		.attr("stroke-width", "3px")
 		.attr("transform", "translate(" + root.x + "," + root.y + ")");
 
 	this.search(newElement, moveArray);
@@ -176,8 +270,15 @@ BinaryTree.prototype.update = function (newElement) {
 		.attr("r", 20)
 		.style("fill", "#fff");
 
+	nodeEnter.append("text")
+		.transition().delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait + BTREE_ANIMATION.treeUpdateDuration + BTREE_ANIMATION.pointerMoveDuration - 180)
+		.attr('class', 'node-value')
+		.attr('dy', '.3em')
+		.attr('text-anchor', 'middle')	
+		.text(function (d) { return d.value;})
+
 	// Transition nodes to their new position.
-	var nodeUpdate = node.transition()
+	node.transition()
 		.delay(pointerMoveTotal + BTREE_ANIMATION.defaultWait)
 		.duration(BTREE_ANIMATION.treeUpdateDuration)
 		.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
