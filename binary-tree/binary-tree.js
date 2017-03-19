@@ -1,7 +1,7 @@
 window.onload = function () {
 	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21).add(19).add(25)
 	bTree = new BinaryTree(500, 700, dataset);
-	bTree.plotTree();
+	bTree.plotTree().orderArray();
 };
 
 const BTREE_ANIMATION = {
@@ -74,6 +74,8 @@ BinaryTree.prototype.plotTree = function () {
 		.attr("d", function (d) {
 			return "M" + d.x + "," + d.y + "L" + d.parent.x + "," + d.parent.y;
 		});
+
+	return this;
 }
 
 BinaryTree.prototype.preorder = function() {
@@ -88,12 +90,20 @@ BinaryTree.prototype.postorder = function() {
 	return this.order(2);
 }
 
-BinaryTree.prototype.order = function(type) {
+BinaryTree.prototype.orderArray = function() {
+	var orderArray = [];
+	this.order(0, orderArray);
+	return orderArray;
+}
+
+BinaryTree.prototype.order = function(type, orderArray) {
 	
 	var root = this.treemap(d3.hierarchy(this.dataset.toD3Format(), function (d) { return d.children; }));
 
 	function recursiveOrder(root) {
-		if (type == 0) {	// Preorder
+		// Preorder
+		orderArray.push([root.x, root.depth, root.value, "preorder"]);
+		if (type == 0) {	
 			console.log(root.data.value);
 		}
 
@@ -101,7 +111,9 @@ BinaryTree.prototype.order = function(type) {
 			recursiveOrder(root.children[0]);
 		}
 
-		if (type == 1) {	// Inorder
+		// Inorder
+		orderArray.push([root.x, root.depth, root.value, "inorder"]);
+		if (type == 1) {	
 			console.log(root.data.value);
 		}
 
@@ -109,6 +121,8 @@ BinaryTree.prototype.order = function(type) {
 			recursiveOrder(root.children[1]);
 		}
 
+		// Postorder
+		orderArray.push([root.x, root.depth, root.value, "postorder"]);
 		if (type == 2) {	// Postorder
 			console.log(root.data.value);
 		}
