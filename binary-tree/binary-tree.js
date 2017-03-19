@@ -1,5 +1,5 @@
 window.onload = function () {
-	var dataset = tree().add(25).add(10).add(5).add(40).add(45).add(35);
+	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21).add(19).add(25)
 	bTree = new BinaryTree(500, 700, dataset);
 	bTree.plotTree();
 };
@@ -76,9 +76,53 @@ BinaryTree.prototype.plotTree = function () {
 		});
 }
 
-BinaryTree.prototype.search = function(newElement, moveArray) {
+BinaryTree.prototype.preorder = function() {
+	return this.order(0);
+}
 
-	// Compute the new tree layout.
+BinaryTree.prototype.inorder = function() {
+	return this.order(1);
+}
+
+BinaryTree.prototype.postorder = function() {
+	return this.order(2);
+}
+
+BinaryTree.prototype.order = function(type) {
+	
+	var root = this.treemap(d3.hierarchy(this.dataset.toD3Format(), function (d) { return d.children; }));
+
+	function recursiveOrder(root) {
+		if (type == 0) {	// Preorder
+			console.log(root.data.value);
+		}
+
+		if (root.children && root.children[0] && root.children[0].value == root.children[0].value) {
+			recursiveOrder(root.children[0]);
+		}
+
+		if (type == 1) {	// Inorder
+			console.log(root.data.value);
+		}
+
+		if (root.children && root.children[1] && root.children[1].value == root.children[1].value) {
+			recursiveOrder(root.children[1]);
+		}
+
+		if (type == 2) {	// Postorder
+			console.log(root.data.value);
+		}
+	}
+
+	return recursiveOrder(root);
+
+}
+
+/**
+ * Find element in binary tree.
+ */
+BinaryTree.prototype.search = function(searchElement, moveArray) {
+
 	var root = this.treemap(d3.hierarchy(this.dataset.toD3Format(), function (d) { return d.children; }));
 
 	function recursiveTreeSearch(root, value) {
@@ -105,7 +149,7 @@ BinaryTree.prototype.search = function(newElement, moveArray) {
 		}
 	}
 
-	return recursiveTreeSearch(root, newElement);
+	return recursiveTreeSearch(root, searchElement);
 }
 
 BinaryTree.prototype.remove = function(removeValue) {

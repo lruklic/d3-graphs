@@ -30,7 +30,7 @@ TreeJson.prototype.add = function(value) {
     if (!this.array) this.array = [];
         
     if (this.array.length == 0) {
-        this.array[0] = [value];
+        this.array[0] = value;
     } else {
         addRecursive(this.array, value);
     }
