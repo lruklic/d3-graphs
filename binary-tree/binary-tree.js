@@ -13,7 +13,9 @@ const BTREE_ANIMATION = {
 }
 
 const DISTANCE = {
-	"depthWidth": 180
+	"depthWidth": 180,
+	"nodeRadius" : 20,
+	"orderTokenRadius" : 5
 }
 
 function BinaryTree(width, height, dataset) {
@@ -78,9 +80,9 @@ BinaryTree.prototype.plotTree = function () {
 	return this;
 }
 
-BinaryTree.prototype.preorder = function() {
+/*BinaryTree.prototype.preorder = function() {
 	return this.order(0);
-}
+}*/
 
 BinaryTree.prototype.inorder = function() {
 	return this.order(1);
@@ -130,6 +132,22 @@ BinaryTree.prototype.order = function(type, orderArray) {
 
 	return recursiveOrder(root);
 
+}
+
+BinaryTree.prototype.preorder = function () {
+	var orderArray = this.orderArray();
+
+	var preorderArray = orderArray.filter(function (el) { return el[3] == "preorder"});
+
+	this.svg.selectAll(".order-visit")
+		.data(preorderArray).enter()
+		.append("circle")
+		.attr("cx", function(d) { return d[0] - DISTANCE.nodeRadius - DISTANCE.orderTokenRadius})
+		.attr("cy", function(d) { return d[1] * DISTANCE.depthWidth})
+		.attr("r", DISTANCE.orderTokenRadius)
+		//.style("stroke", "red")
+		.style("fill", "red")
+		
 }
 
 /**
