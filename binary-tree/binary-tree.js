@@ -1,10 +1,12 @@
 window.onload = function () {
 	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21).add(19).add(25)
 	bTree = new BinaryTree(500, 700, dataset);
-	bTree.plotTree().orderArray();
+	bTree.plotTree(); //.orderArray();
 };
 
 const BTREE_ANIMATION = {
+	"startTime" : 1000,
+	"endTime" : 1000,
 	"appearDuration": 200,
 	"defaultWait": 500,
 	"pointerMoveDuration": 500,
@@ -15,7 +17,8 @@ const BTREE_ANIMATION = {
 const DISTANCE = {
 	"depthWidth": 180,
 	"nodeRadius" : 20,
-	"orderTokenRadius" : 5
+	"orderTokenRadius" : 5,
+	"orderTokenGap" : 2
 }
 
 function BinaryTree(width, height, dataset) {
@@ -134,19 +137,73 @@ BinaryTree.prototype.order = function(type, orderArray) {
 
 }
 
-BinaryTree.prototype.preorder = function () {
+BinaryTree.prototype.orderAnimate = function (type) {
 	var orderArray = this.orderArray();
 
-	var preorderArray = orderArray.filter(function (el) { return el[3] == "preorder"});
+	var preorderArray = orderArray.filter(function (el) { return el[3] == type});
 
 	this.svg.selectAll(".order-visit")
 		.data(preorderArray).enter()
 		.append("circle")
-		.attr("cx", function(d) { return d[0] - DISTANCE.nodeRadius - DISTANCE.orderTokenRadius})
+		.attr("cx", function(d) { return d[0] - DISTANCE.nodeRadius - DISTANCE.orderTokenRadius - DISTANCE.orderTokenGap})
 		.attr("cy", function(d) { return d[1] * DISTANCE.depthWidth})
 		.attr("r", DISTANCE.orderTokenRadius)
-		//.style("stroke", "red")
-		.style("fill", "red")
+		.style("fill", "red");
+
+	var pointer = this.svg.append("circle")
+		.attr("class", "order-visit-pointer")
+		.attr("cx", orderArray[0][0])
+		.attr("cy", orderArray[0][1] * DISTANCE.depthWidth)
+		.attr("r", DISTANCE.nodeRadius)
+		.attr("fill-opacity", 0)
+		.attr("stroke", "steelblue")
+		.attr("stroke-width", "3px");
+
+	pointer
+		.transition().delay(BTREE_ANIMATION.startTime).duration(BTREE_ANIMATION.pointerMoveDuration)
+		.attr("cx", orderArray[0][0] - DISTANCE.nodeRadius - DISTANCE.orderTokenRadius - DISTANCE.orderTokenGap)
+		.attr("r", DISTANCE.orderTokenRadius)
+		.attr("fill-opacity", 1)
+		.attr("stroke-width", "0px")
+		.style("fill", "steelblue");
+
+	if (orderArray[0][3] == type) {
+		pointer
+			.transition().delay(BTREE_ANIMATION.startTime + BTREE_ANIMATION.pointerMoveDuration)
+			.style("fill", "green");
+	}
+
+	for (i = 1; i < orderArray.length; i++) {
+		var shift = {"width" : 0, "height" : 0};
+		var orderType = orderArray[i][3];
+		if (orderType == "preorder") {
+			shift.width = (-1) * (DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap);
+		} else if (orderType == "inorder") {
+			shift.height = DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap;
+		} else if (orderType == "postorder") {
+			shift.width = DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap;
+		}
+		
+		pointer.transition()
+			.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + (i - 1) * BTREE_ANIMATION.pointerMoveDuration)
+			.duration(BTREE_ANIMATION.pointerMoveDuration)
+			.attr("cx", orderArray[i][0] + shift.width)
+			.attr("cy", orderArray[i][1] * DISTANCE.depthWidth + shift.height)
+			.style("fill", "steelblue");
+
+		if (orderArray[i][3] == type) {
+			pointer.transition()
+				.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + i * BTREE_ANIMATION.pointerMoveDuration)
+				.style("fill", "green");
+		}
+
+	}
+
+	this.svg.selectAll(".order-visit, .order-visit-pointer")
+		.transition()
+		.delay(BTREE_ANIMATION.startTime + orderArray.length * BTREE_ANIMATION.pointerMoveDelay + (orderArray.length - 1) * BTREE_ANIMATION.pointerMoveDuration)
+		.duration(BTREE_ANIMATION.endTime)
+		.style("opacity", 0);
 		
 }
 
