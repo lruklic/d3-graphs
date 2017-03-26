@@ -1,5 +1,5 @@
 window.onload = function () {
-	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21).add(19).add(25)
+	var dataset = tree().add(5).add(2).add(-4); //.add(3).add(12).add(9).add(21).add(19).add(25)
 	bTree = new BinaryTree(500, 700, dataset);
 	bTree.plotTree(); //.orderArray();
 };
@@ -138,15 +138,33 @@ BinaryTree.prototype.order = function(type, orderArray) {
 }
 
 BinaryTree.prototype.orderAnimate = function (type) {
+
+	function getShift(orderType) {	
+		var shift = {"width" : 0, "height" : 0};
+
+		if (orderType == "preorder") {
+			shift.width = (-1) * (DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap);
+		} else if (orderType == "inorder") {
+			shift.height = DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap;
+		} else if (orderType == "postorder") {
+			shift.width = DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap;
+		}
+
+		return shift;
+	}
+
 	var orderArray = this.orderArray();
 
-	var preorderArray = orderArray.filter(function (el) { return el[3] == type});
+	var selectedOrderArray = orderArray.filter(function (el) { return el[3] == type});
+
+	var shift = getShift(type);
 
 	this.svg.selectAll(".order-visit")
-		.data(preorderArray).enter()
+		.data(selectedOrderArray).enter()
 		.append("circle")
-		.attr("cx", function(d) { return d[0] - DISTANCE.nodeRadius - DISTANCE.orderTokenRadius - DISTANCE.orderTokenGap})
-		.attr("cy", function(d) { return d[1] * DISTANCE.depthWidth})
+		.attr("class", "order-visit")
+		.attr("cx", function(d) { return d[0] + shift.width})
+		.attr("cy", function(d) { return d[1] * DISTANCE.depthWidth + shift.height})
 		.attr("r", DISTANCE.orderTokenRadius)
 		.style("fill", "red");
 
@@ -174,15 +192,8 @@ BinaryTree.prototype.orderAnimate = function (type) {
 	}
 
 	for (i = 1; i < orderArray.length; i++) {
-		var shift = {"width" : 0, "height" : 0};
-		var orderType = orderArray[i][3];
-		if (orderType == "preorder") {
-			shift.width = (-1) * (DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap);
-		} else if (orderType == "inorder") {
-			shift.height = DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap;
-		} else if (orderType == "postorder") {
-			shift.width = DISTANCE.nodeRadius + DISTANCE.orderTokenRadius + DISTANCE.orderTokenGap;
-		}
+
+		var shift = getShift(orderArray[i][3]);
 		
 		pointer.transition()
 			.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + (i - 1) * BTREE_ANIMATION.pointerMoveDuration)
@@ -203,7 +214,8 @@ BinaryTree.prototype.orderAnimate = function (type) {
 		.transition()
 		.delay(BTREE_ANIMATION.startTime + orderArray.length * BTREE_ANIMATION.pointerMoveDelay + (orderArray.length - 1) * BTREE_ANIMATION.pointerMoveDuration)
 		.duration(BTREE_ANIMATION.endTime)
-		.style("opacity", 0);
+		.style("opacity", 0)
+		.remove();
 		
 }
 
