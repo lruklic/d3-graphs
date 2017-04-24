@@ -1,29 +1,36 @@
 <html>
 	<head>
-		<style>
-		.node circle {
-			fill: #fff;
-			stroke: steelblue;
-			stroke-width: 3px;
-		}
-
-		.link {
-			fill: none;
-			stroke: #ccc;
-			stroke-width: 2px;
-		}
-
-		.padding-top-20 {
-			padding-top: 20px;
-		}
-
-		</style>
 		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="index.css" media="screen" />
 		<script src="https://d3js.org/d3.v4.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.css">
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.js"></script>
 		<script src="json-generator.js"></script>
+		<script src="index.js"></script>
 		<script src="binary-tree.js"></script>
 	</head>
 	<body>
-			<div id="binary-tree"></div>		
+		<div id="main" class="ui container">
+			<div class="ui blue menu">
+				<a id="menu-bar-graph" class="active item">Bar graph</a>
+				<a id="menu-mini-bar-graph" class="item">Mini bar graph</a>	
+				<a id="menu-line-graph" class="item">Line graph</a>					
+			</div>
+			
+			<div class="ui grid">
+				<div class="four wide column"></div>
+				<div class="eight wide column">
+					<div id="binary-tree" class="center"></div>
+				</div>
+				<div class="four wide column">
+					<div class="ui icon input">
+						<input id="add-value" type="text" placeholder="Add new value">
+						<i class="circular add circle link icon" action="add"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+
 	</body>
 </html>

@@ -1,5 +1,5 @@
 window.onload = function () {
-	var dataset = tree().add(5).add(2).add(-4); //.add(3).add(12).add(9).add(21).add(19).add(25)
+	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21); //.add(19).add(25)
 	bTree = new BinaryTree(500, 700, dataset);
 	bTree.plotTree(); //.orderArray();
 };
@@ -33,7 +33,7 @@ BinaryTree.prototype.plotTree = function () {
 		.append("svg")
 		.attr("width", this.width)
 		.attr("height", this.height)
-		.style("padding-top", "20px");
+		.attr("class", "padding-top-30");
 
 	this.treemap = d3.tree().size([this.width, this.height]);
 
@@ -344,6 +344,11 @@ BinaryTree.prototype.add = function (newElement) {
 	var pointerMoveTotal = 0;
 	var moveArray = [];
 
+	var found = this.search(newElement, moveArray);
+	if (found) {
+		return;
+	}
+
 	var updateElement = this.svg.append("circle")
 		.attr("class", "insert-pointer")
 		.attr("r", 17)
@@ -351,8 +356,6 @@ BinaryTree.prototype.add = function (newElement) {
 		.attr("stroke", "red")
 		.attr("stroke-width", "3px")
 		.attr("transform", "translate(" + root.x + "," + root.y + ")");
-
-	this.search(newElement, moveArray);
 
 	for (i = 0; i < moveArray.length; i++) {
 		d3.select(".insert-pointer")
