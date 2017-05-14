@@ -137,7 +137,7 @@ BinaryTree.prototype.order = function(type, orderArray) {
 
 }
 
-BinaryTree.prototype.orderAnimate = function (type) {
+BinaryTree.prototype.orderAnimate = function (type, textboxId) {
 
 	function getShift(orderType) {	
 		var shift = {"width" : 0, "height" : 0};
@@ -184,6 +184,30 @@ BinaryTree.prototype.orderAnimate = function (type) {
 		.attr("fill-opacity", 1)
 		.attr("stroke-width", "0px")
 		.style("fill", "steelblue");
+	
+	// Fill order text
+	d3.select(textboxId).text("");
+
+	var currentOrderArray = [];
+	for (var i = 0; i < orderArray.length; i++) {
+		if (orderArray[i][3] == type) {
+			currentOrderArray.push(orderArray[i]);
+		}
+	}
+
+	var counter = 1;
+	for (var i = 0; i < orderArray.length; i++) {
+		var currentOrder = "";
+		if (orderArray[i][3] == type) {
+			for (j = 0; j < counter; j++) {
+				currentOrder += currentOrderArray[j][2] + ", ";
+			}
+			counter++;
+			d3.select("#binary-tree-order").transition()
+				.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + (i - 1) * BTREE_ANIMATION.pointerMoveDuration)
+				.text(type.toUpperCase() + ": " + currentOrder.substring(0, currentOrder.length - 2));
+		}
+	}
 
 	if (orderArray[0][3] == type) {
 		pointer
@@ -195,8 +219,10 @@ BinaryTree.prototype.orderAnimate = function (type) {
 
 		var shift = getShift(orderArray[i][3]);
 		
+		var delay = BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + (i - 1) * BTREE_ANIMATION.pointerMoveDuration;
+
 		pointer.transition()
-			.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + (i - 1) * BTREE_ANIMATION.pointerMoveDuration)
+			.delay(delay)
 			.duration(BTREE_ANIMATION.pointerMoveDuration)
 			.attr("cx", orderArray[i][0] + shift.width)
 			.attr("cy", orderArray[i][1] * DISTANCE.depthWidth + shift.height)

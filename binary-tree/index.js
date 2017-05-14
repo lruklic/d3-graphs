@@ -1,4 +1,7 @@
 $(document).ready(function () {
+
+    $(".dropdown").dropdown({action: 'combo'});
+
     $(".link").on('click', function () {
         var action = $(this).attr("action");
 
@@ -12,5 +15,11 @@ $(document).ready(function () {
             default:
                 break;
         }
-    })
+    });
+
+    $(".binary-tree-order").on('click', function () {
+        var action = $(this).find('i').attr('action');
+
+        bTree.orderAnimate(action, "#binary-tree-order");
+    });
 });
