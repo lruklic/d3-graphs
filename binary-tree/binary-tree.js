@@ -83,9 +83,9 @@ BinaryTree.prototype.plotTree = function () {
 	return this;
 }
 
-/*BinaryTree.prototype.preorder = function() {
+BinaryTree.prototype.preorder = function() {
 	return this.order(0);
-}*/
+}
 
 BinaryTree.prototype.inorder = function() {
 	return this.order(1);
