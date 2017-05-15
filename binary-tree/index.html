@@ -1,70 +1,81 @@
 <html>
-	<head>
-		<meta charset="utf-8">
-		<link rel="stylesheet" type="text/css" href="index.css" media="screen" />
-		<script src="https://d3js.org/d3.v4.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
-		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.css">
-    	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.js"></script>
-		<script src="json-generator.js"></script>
-		<script src="index.js"></script>
-		<script src="binary-tree.js"></script>
-	</head>
-	<body>
-		<div id="main" class="ui container">
-			<div class="ui blue menu">
-				<a id="menu-bar-graph" class="active item">Binary Search tree</a>			
-			</div>
-			
-			<div class="ui grid">
-				<div class="four wide column">
-					<div class="ui card">
-						<div class="content">
-							<div class="header">Binary Search Tree</div>
-							<div class="meta">data structure</div>
-							<div class="description">
-							<p>A data structure in which a record is linked to two successor records, referred to as the left branch when greater and the right when less than the previous record.</p>
+
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="index.css" media="screen" />
+	<script src="https://d3js.org/d3.v4.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.js"></script>
+	<script src="descriptions/descriptions.js"></script>	
+	<script src="json-generator.js"></script>
+	<script src="index.js"></script>
+	<script src="binary-tree.js"></script>
+</head>
+
+<body>
+	<div id="main" class="ui container">
+		<div class="ui blue menu">
+			<a id="menu-bar-graph" class="active item">Binary Search Tree</a>
+		</div>
+
+		<div class="ui grid">
+			<div class="four wide column">
+				<div class="ui card">
+					<div class="content">
+						<div class="header">Binary Search Tree</div>
+						<div class="meta">data structure</div>
+						<div class="description">
+							<p>A data structure in which a record is linked to two successor records, referred to as the left branch when greater
+								and the right when less than the previous record.</p>
 							<p>Duplicates are usually not supported in binary trees.</p>
-							</div>
 						</div>
-						<div class="extra content">
-							<a target="_blank" href="https://www.tutorialspoint.com/data_structures_algorithms/binary_search_tree.htm" title="Link 1"><i class="circular linkify link icon" ></i></a>							
-							<a target="_blank" href="http://cslibrary.stanford.edu/110/BinaryTrees.html" title="Link 2"><i class="circular linkify link icon" ></i></a>														
-							<a target="_blank" href="https://en.wikipedia.org/wiki/Binary_search_tree" title="Wiki 1"><i class="circular wikipedia link icon" ></i></a>
-							<a target="_blank" href="https://stackoverflow.com/questions/6380231/difference-between-binary-tree-and-binary-search-tree" title="SO 1"><i class="circular stack overflow link icon" ></i></a>
+					</div>
+					<div class="extra content">
+						<a target="_blank" href="https://www.tutorialspoint.com/data_structures_algorithms/binary_search_tree.htm" title="Link 1"><i class="circular linkify link icon" ></i></a>
+						<a target="_blank" href="http://cslibrary.stanford.edu/110/BinaryTrees.html" title="Link 2"><i class="circular linkify link icon" ></i></a>
+						<a target="_blank" href="https://en.wikipedia.org/wiki/Binary_search_tree" title="Wiki 1"><i class="circular wikipedia link icon" ></i></a>
+						<a target="_blank" href="https://stackoverflow.com/questions/6380231/difference-between-binary-tree-and-binary-search-tree"
+							title="SO 1"><i class="circular stack overflow link icon"></i></a>
 							<a target="_blank" href="https://www.youtube.com/watch?v=pYT9F8_LFTM" title="Youtube 1"><i class="circular youtube play link icon" ></i></a>
-						</div>
 					</div>
 				</div>
-				<div class="eight wide column">
-					<div id="binary-tree" class="center"></div>
-					<div id="binary-tree-order" class="center"></div>
+				<div id="binary-tree-msg" class="ui message hidden">
+					<i class="close icon"></i>
+					<div class="header"></div>
+					<p></p>
 				</div>
-				<div class="four wide column">
-					<div class="ui icon input">
-						<input id="add-value" type="text" placeholder="Add new value">
-						<i class="circular add circle link icon" action="add"></i>
-					</div>
-					<div class="ui icon input margin-top-10">
-						<input id="remove-value" type="text" placeholder="Remove value">
-						<i class="circular remove circle link icon" action="remove"></i>
-					</div>
-					<div class="ui icon margin-top-10">
-						<div class="ui basic buttons">
-							<div class="ui basic button binary-tree-order">Choose traversal order</div>
-							<div class="ui combo top right pointing dropdown icon button">
-								<i class="dropdown icon"></i>
-								<div class="menu">
-									<div class="item"><i class="caret right icon" action="preorder"></i> Preorder</div>
-									<div class="item"><i class="caret up icon" action="inorder"></i> Inorder</div>
-									<div class="item"><i class="caret left icon" action="postorder"></i> Postorder</div>
-								</div>
+			</div>
+			<div class="eight wide column">
+				<div id="binary-tree" class="center"></div>
+				<div id="binary-tree-order" class="center"></div>
+			</div>
+			<div class="four wide column">
+				<div class="ui icon input">
+					<input id="add-value" type="text" placeholder="Add new value">
+					<i class="circular add circle link icon" action="add"></i>
+				</div>
+				<div class="ui icon input margin-top-10">
+					<input id="remove-value" type="text" placeholder="Remove value">
+					<i class="circular remove circle link icon" action="remove"></i>
+				</div>
+				<div class="ui icon margin-top-10">
+					<div class="ui basic buttons">
+						<div class="ui basic button binary-tree-order">Choose traversal order</div>
+						<div class="ui combo top right pointing dropdown icon button">
+							<i class="dropdown icon"></i>
+							<div class="menu">
+								<div class="item"><i class="caret right icon" action="preorder"></i> Preorder</div>
+								<div class="item"><i class="caret up icon" action="inorder"></i> Inorder</div>
+								<div class="item"><i class="caret left icon" action="postorder"></i> Postorder</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 
-	</body>
+</body>
+
 </html>

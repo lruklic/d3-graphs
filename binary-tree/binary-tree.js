@@ -185,30 +185,33 @@ BinaryTree.prototype.orderAnimate = function (type, textboxId) {
 		.attr("stroke-width", "0px")
 		.style("fill", "steelblue");
 	
-	// Fill order text
-	d3.select(textboxId).text("");
+	// Fill order text step-by-step
+	if (textboxId) {
+		d3.select(textboxId).text("");
 
-	var currentOrderArray = [];
-	for (var i = 0; i < orderArray.length; i++) {
-		if (orderArray[i][3] == type) {
-			currentOrderArray.push(orderArray[i]);
-		}
-	}
-
-	var counter = 1;
-	for (var i = 0; i < orderArray.length; i++) {
-		var currentOrder = "";
-		if (orderArray[i][3] == type) {
-			for (j = 0; j < counter; j++) {
-				currentOrder += currentOrderArray[j][2] + ", ";
+		var currentOrderArray = [];
+		for (var i = 0; i < orderArray.length; i++) {
+			if (orderArray[i][3] == type) {
+				currentOrderArray.push(orderArray[i]);
 			}
-			counter++;
-			d3.select("#binary-tree-order").transition()
-				.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + (i - 1) * BTREE_ANIMATION.pointerMoveDuration)
-				.text(type.toUpperCase() + ": " + currentOrder.substring(0, currentOrder.length - 2));
+		}
+
+		var counter = 1;
+		for (var i = 0; i < orderArray.length; i++) {
+			var currentOrder = "";
+			if (orderArray[i][3] == type) {
+				for (j = 0; j < counter; j++) {
+					currentOrder += currentOrderArray[j][2] + ", ";
+				}
+				counter++;
+				d3.select("#binary-tree-order").transition()
+					.delay(BTREE_ANIMATION.startTime + i * BTREE_ANIMATION.pointerMoveDelay + i * BTREE_ANIMATION.pointerMoveDuration)
+					.text(type.toUpperCase() + ": " + currentOrder.substring(0, currentOrder.length - 2));
+			}
 		}
 	}
 
+	// Turn pointer green when item is found
 	if (orderArray[0][3] == type) {
 		pointer
 			.transition().delay(BTREE_ANIMATION.startTime + BTREE_ANIMATION.pointerMoveDuration)
@@ -242,7 +245,8 @@ BinaryTree.prototype.orderAnimate = function (type, textboxId) {
 		.duration(BTREE_ANIMATION.endTime)
 		.style("opacity", 0)
 		.remove();
-		
+	
+	return this;
 }
 
 /**
