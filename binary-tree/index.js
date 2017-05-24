@@ -21,6 +21,16 @@ $(document).ready(function () {
         }
     });
 
+    $(".item").on('click', function () {
+        var id = $(this).attr('id');
+        
+        $(".item").removeClass("active");
+        $(this).addClass("active");
+
+        $(".container").addClass("hidden");
+        $("." + id).removeClass("hidden");
+    });
+
     $(".binary-tree-order").on('click', function () {
         var action = $(this).find('i').attr('action');
         bTree.orderAnimate(action, "#binary-tree-order");
