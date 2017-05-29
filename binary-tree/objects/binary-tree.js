@@ -1,9 +1,3 @@
-window.onload = function () {
-	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21); //.add(19).add(25)
-	bTree = new BinaryTree(500, 700, dataset);
-	bTree.plotTree(); //.orderArray();
-};
-
 const BTREE_ANIMATION = {
 	"startTime" : 1000,
 	"endTime" : 1000,

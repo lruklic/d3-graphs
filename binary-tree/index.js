@@ -1,5 +1,13 @@
 $(document).ready(function () {
 
+	var dataset = tree().add(5).add(2).add(-4).add(3).add(12).add(9).add(21); //.add(19).add(25)
+	bTree = new BinaryTree(500, 700, dataset);
+	bTree.plotTree(); //.orderArray();
+
+    var dataset2 = [20, 43, 3, 16, 15];
+    sort = new Sort(800, 400, dataset2);
+    sort.plot();
+
     $(".dropdown").dropdown({action: 'combo'});
 
     $('.message .close').on('click', function() {
