@@ -1,5 +1,5 @@
 const SORT_ANIMATION = {
-    "swapDuration" : 1000,
+    "swapDuration" : 2000,
     "stepDuration" : 500,
 }
 
@@ -48,32 +48,45 @@ Sort.prototype.plot = function () {
 
 Sort.prototype.bubbleSort = function (a) {
 
+    var sortSteps = [];
+
     var swapped;
     do {
         swapped = false;
         for (var i = 0; i < a.length-1; i++) {
-            console.log("compare: " + a[i].value + " " + a[i+1].value);
-            if (a[i].value > a[i+1].value) {
-                console.log("swap:" + a[i].index + " " + a[i].value + " with " +  a[i+1].index + " " + a[i+1].value);
-                var temp = a[i].value;
-                a[i].value = a[i+1].value;
-                a[i+1].value = temp;
+            var compareResult = (a[i].value > a[i+1].value);
+
+            sortSteps.push({"action" : "compare", "index1" : i, "index2" : (i+1), "swap" : compareResult});
+            //console.log("compare: " + a[i].value + " " + a[i+1].value);
+            if (compareResult) {
+                sortSteps.push({"action" : "swap", "index1" : i, "index2" : (i+1)});
+                //console.log("swap:" + a[i].index + " " + a[i].value + " with " +  a[i+1].index + " " + a[i+1].value);
+                var temp = a[i];
+                a[i] = a[i+1];
+                a[i+1] = temp;
                 swapped = true;
             }
         }
 
     } while (swapped);
 
+    return sortSteps;
 }
 
-Sort.prototype.compareBars = function (index1, index2, step) {
+Sort.prototype.compareBars = function (index1, index2, step, swap) {
 
     var selection = d3.selectAll(this.barSelector(index1) + ", " + this.barSelector(index2));
 
     selection.transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
         .attr("stroke", "black").attr("stroke-width", 2);
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + SORT_ANIMATION.swapDuration / 2).duration(500)
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 0.3 * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
+        .attr("fill", (swap ? "red" : "green"));
+
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 0.6 * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
+        .attr("fill", "cornflowerblue");
+
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 0.9 * SORT_ANIMATION.swapDuration).duration(0.1 * SORT_ANIMATION.swapDuration)
         .attr("stroke", "none");
 /*    d3.select(this.barSelector(index1))
         .transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
@@ -83,14 +96,17 @@ Sort.prototype.compareBars = function (index1, index2, step) {
 Sort.prototype.swapBars = function (index1, index2, step) {
     var x = this.x;
 
-    d3.select(this.barSelector(index1))
-        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
+    var bar1 = d3.select(this.barSelector(index1));
+    var bar2 = d3.select(this.barSelector(index2));
+
+    bar1
         .attr("start-index", index2)
+        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
         .attr("x", x(index2));
     
-    d3.select(this.barSelector(index2))
-        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
+    bar2
         .attr("start-index", index1)
+        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
         .attr("x", x(index1));    
 }
 
@@ -98,8 +114,13 @@ Sort.prototype.barSelector = function (number) {
     return 'rect[start-index="' + number + '"]';
 }
 
-Sort.prototype.proba = function () {
-    this.compareBars(0, 1, 0);
-    this.compareBars(1, 2, 1);
-    this.swapBars()
+Sort.prototype.sortAnimate = function (sortSteps) {
+    for (var i = 0; i < sortSteps.length; i++) {
+        var step = sortSteps[i];
+        if (step.action == "compare") {
+            this.compareBars(step.index1, step.index2, i, step.swap);
+        } else if (step.action == "swap") {
+            this.swapBars(step.index1, step.index2, i);
+        } 
+    }
 }
