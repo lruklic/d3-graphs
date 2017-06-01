@@ -4,8 +4,8 @@ $(document).ready(function () {
 	bTree = new BinaryTree(500, 700, dataset);
 	bTree.plotTree(); //.orderArray();
 
-    var dataset2 = [20, 43, 3, 16, 15];
-    sort = new Sort(800, 400, dataset2);
+    var dataset2 = [20, 43, 3, 16, 15, 12, 2];
+    sort = new Sort(600, 300, dataset2);
     sort.plot();
 
     $(".dropdown").dropdown({action: 'combo'});

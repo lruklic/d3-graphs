@@ -1,5 +1,5 @@
 const SORT_ANIMATION = {
-    "swapDuration" : 2000,
+    "swapDuration" : 1000,
     "stepDuration" : 500,
 }
 
@@ -17,7 +17,9 @@ function Sort(width, height, dataset) {
     this.x = d3.scaleBand()
         .range([0, this.width])
         .padding(0.1)
-        .domain([0,1,2,3,4]);
+        .domain(dataset.map(function(d, i) {
+            return i;
+        }));
     
     this.y = d3.scaleLinear()
         .range([this.height, 0])
