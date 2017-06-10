@@ -8,7 +8,8 @@ $(document).ready(function () {
     sort = new Sort(600, 300, dataset2);
     sort.plot();
 
-    $(".dropdown").dropdown({action: 'combo'});
+    $(".dropdown.combo").dropdown({action: 'combo'});
+    $(".dropdown.classic").dropdown();    
 
     $('.message .close').on('click', function() {
         $(this).closest('.message').transition('fade');
@@ -29,10 +30,10 @@ $(document).ready(function () {
         }
     });
 
-    $(".item").on('click', function () {
+    $(".tabular.item").on('click', function () {
         var id = $(this).attr('id');
         
-        $(".item").removeClass("active");
+        $(".tabular.item").removeClass("active");
         $(this).addClass("active");
 
         $(".container").addClass("hidden");
@@ -47,5 +48,12 @@ $(document).ready(function () {
 		description.find(".header").html(descriptions.binaryTree[action].name.english).css('textTransform', 'capitalize');;               
 		description.find("p").html(descriptions.binaryTree[action].description.english);
         description.removeClass("hidden");
+    });
+
+    $("#sort-start").on('click', function () {
+        var sortingAlgorithm = $("#sorting-algorithm").dropdown('get value')[0];
+        if (sortingAlgorithm == "bubble") {
+            sort.sortAnimate(sort.bubbleSort(sort.dataset));
+        }
     });
 });

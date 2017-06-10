@@ -17,8 +17,8 @@
 <body>
 	<div id="main" class="ui container">
 		<div class="ui blue menu">
-			<a id="binary-search-tree" class="active item">Binary Search Tree</a>
-			<a id="sorting" class="item">Sorting</a>			
+			<a id="binary-search-tree" class="active tabular item">Binary Search Tree</a>
+			<a id="sorting" class="tabular item">Sorting</a>			
 		</div>
 
 		<div class="container binary-search-tree">
@@ -82,13 +82,56 @@
 		<div class="container sorting hidden">
 			<div class="ui grid">
 				<div class="four wide column">
-					Text explaining sorts
+					<div class="ui card">
+						<div class="content">
+							<div class="header">Sorting</div>
+							<div class="meta">algorithms</div>
+							<div class="description">
+								<p>Algorithm that puts elements of a list in a certain order.</p>
+								<p>There are many different sorting algorithms that differ on speed, complexity, memory usage etc.</p>
+							</div>
+						</div>
+						<div class="extra content">
+							<a target="_blank" href="https://en.wikipedia.org/wiki/Sorting_algorithm" title="Link 1"><i class="circular linkify link icon" ></i></a>
+							<a target="_blank" href="https://en.wikipedia.org/wiki/Sorting_algorithm" title="Wiki 1"><i class="circular wikipedia link icon" ></i></a>
+							<a target="_blank" href="" title="SO 1"><i class="circular stack overflow link icon"></i></a>
+							<a target="_blank" href="" title="Youtube 1"><i class="circular youtube play link icon" ></i></a>
+						</div>
+					</div>
+					<div class="ui card hidden">
+						<div class="content">
+							<div class="header">Bubble sort</div>
+							<div class="meta">Exchanging</div>
+							<div class="description">
+								<p>The algorithm starts at the beginning of the data set. It compares the first two elements, and if the first is greater than the second, it swaps them. It continues doing this for each pair of adjacent elements to the end of the data set. It then starts again with the first two elements, repeating until no swaps have occurred on the last pass.</p>
+								<p>Best time: <strong>n</strong></p>
+								<p>Worst time: <strong>n^2</strong></p>
+								<p>Average time: <strong>n^2</strong></p>								
+							</div>
+						</div>
+						<div class="extra content">
+							<a target="_blank" href="https://en.wikipedia.org/wiki/Sorting_algorithm" title="Link 1"><i class="circular linkify link icon" ></i></a>
+							<a target="_blank" href="https://en.wikipedia.org/wiki/Sorting_algorithm" title="Wiki 1"><i class="circular wikipedia link icon" ></i></a>
+							<a target="_blank" href="" title="SO 1"><i class="circular stack overflow link icon"></i></a>
+							<a target="_blank" href="" title="Youtube 1"><i class="circular youtube play link icon" ></i></a>
+						</div>
+					</div>
 				</div>
 				<div class="nine wide column">
 					<div id="sorting-frame"></div>
 				</div>
 				<div class="three wide column">
-					Controls
+					<div class="ui grid">
+						<div class="sixteen wide column">
+							<select id="sorting-algorithm" class="ui fluid dropdown classic">
+								<option value="bubble">Bubble sort</option>
+								<option value="merge">Merge sort</option>						
+							</select>
+						</div>
+						<div class="sixteen wide column">
+							<button id="sort-start" class="ui button right floated">Start</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div> 
