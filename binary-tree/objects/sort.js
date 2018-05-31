@@ -3,6 +3,11 @@ const SORT_ANIMATION = {
     "stepDuration" : 500,
 }
 
+const STARTING_POSITIONS = {
+    "sortingMinimumX" : -30,
+    "sortingMinimumY" : 320
+}
+
 function Sort(width, height, dataset) {
     this.width = width;
     this.height = height;
@@ -43,9 +48,15 @@ Sort.prototype.plot = function () {
         .attr("start-index", function(d) { return d.index})
         .attr("x", function (d, i) {return x(i)})
         .attr("width", x.bandwidth())
-        .attr("y", function(d) { return y(d.value); })
+        .attr("y", function(d) { return y(d.value) - 50; })
         .attr("height", function(d) { return height - y(d.value); })
         .attr("fill", "cornflowerblue");
+
+    this.svg.append("text")
+        .attr("id", "sorting-minimum")
+        .attr("x", STARTING_POSITIONS.sortingMinimumX)
+        .attr("y", STARTING_POSITIONS.sortingMinimumY)
+        .text("MIN");
 }
 
 Sort.prototype.bubbleSort = function (a) {
@@ -75,24 +86,91 @@ Sort.prototype.bubbleSort = function (a) {
     return sortSteps;
 }
 
+Sort.prototype.selectionSort = function(a) {
+
+    var sortSteps = [];
+
+    for (var i = 0; i < a.length-1; i++) {
+        sortSteps.push({"action" : "select", "index" : i});
+
+        var min = i;
+        sortSteps.push({"action" : "set minimum", "index" : i, "value" : a[i]});
+
+        for (var j = i+1; j < a.length; j++) {
+            var compareResult = (a[j].value < a[min].value);   
+            sortSteps.push({"action" : "compare", "index1" : j, "index2" : min, "swap" : compareResult});
+            
+            if (compareResult) {
+                min = j;
+                sortSteps.push({"action" : "set minimum", "index" : min, "value" : a[i]});        
+            }
+        }
+
+        sortSteps.push({"action" : "swap", "index1" : min, "index2" : i});
+        var temp = a[min];
+        a[min] = a[i];
+        a[i] = temp;
+
+    }
+
+    return sortSteps;
+}
+
 Sort.prototype.compareBars = function (index1, index2, step, swap) {
+
+    var INTERNAL_DELAY = 0.3;
 
     var selection = d3.selectAll(this.barSelector(index1) + ", " + this.barSelector(index2));
 
     selection.transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
         .attr("stroke", "black").attr("stroke-width", 2);
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 0.3 * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
         .attr("fill", (swap ? "red" : "green"));
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 0.6 * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 2*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
         .attr("fill", "cornflowerblue");
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 0.9 * SORT_ANIMATION.swapDuration).duration(0.1 * SORT_ANIMATION.swapDuration)
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 3*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.1 * SORT_ANIMATION.swapDuration)
         .attr("stroke", "none");
 /*    d3.select(this.barSelector(index1))
         .transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
         .attr("stroke", black).attr("stroke-width", 2);*/
+}
+
+Sort.prototype.selectElement = function(index, step) {
+    var INTERNAL_DELAY = 0.4;
+
+    var all = d3.selectAll("rect").transition().delay(step * SORT_ANIMATION.swapDuration).duration(1).attr("stroke", "none");
+    var selection = d3.selectAll(this.barSelector(index));
+    //var text = d3.select("#sorting-minimum");
+
+    for (var i = 0; i < index; i++) {
+        var sortedSelection = d3.selectAll(this.barSelector(i));
+        sortedSelection.transition().delay(step * SORT_ANIMATION.swapDuration + SORT_ANIMATION.swapDuration).duration(INTERNAL_DELAY * SORT_ANIMATION.swapDuration)
+            .attr("fill", "cadetblue");
+    }
+
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 2*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(1)
+        .attr("stroke", "blue");
+
+}
+
+Sort.prototype.setMinimum = function (index, step) {
+
+    var selection = d3.selectAll(this.barSelector(index));
+    var textSvg = d3.select("#sorting-minimum");
+
+    console.log(Number(selection.attr("x")) + Number(selection.attr("width")/2) - 5);
+
+    textSvg
+        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
+        .attr("x", (this.x.bandwidth()*index) + (sort.x.paddingInner()*sort.x.step() * index)  + this.x.bandwidth()/2 - 5)
+        .attr("y", STARTING_POSITIONS.sortingMinimumY)
+
+    selection.transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
+        .attr("stroke", "green").attr("stroke-width", 2);
+
 }
 
 Sort.prototype.swapBars = function (index1, index2, step) {
@@ -123,6 +201,10 @@ Sort.prototype.sortAnimate = function (sortSteps) {
             this.compareBars(step.index1, step.index2, i, step.swap);
         } else if (step.action == "swap") {
             this.swapBars(step.index1, step.index2, i);
-        } 
+        } else if (step.action == "set minimum") {
+            this.setMinimum(step.index, i);
+        } else if (step.action == "select") {
+            this.selectElement(step.index, i);
+        }
     }
 }

@@ -5,7 +5,7 @@ $(document).ready(function () {
 	bTree.plotTree(); //.orderArray();
 
     var dataset2 = [20, 43, 3, 16, 15, 12, 2];
-    sort = new Sort(600, 300, dataset2);
+    sort = new Sort(600, 350, dataset2);
     sort.plot();
 
     $(".dropdown.combo").dropdown({action: 'combo'});
@@ -54,6 +54,8 @@ $(document).ready(function () {
         var sortingAlgorithm = $("#sorting-algorithm").dropdown('get value')[0];
         if (sortingAlgorithm == "bubble") {
             sort.sortAnimate(sort.bubbleSort(sort.dataset));
+        } else if (sortingAlgorithm == "selection") {
+            sort.sortAnimate(sort.selectionSort(sort.dataset));            
         }
     });
 });
