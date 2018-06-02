@@ -1,4 +1,5 @@
 const SORT_ANIMATION = {
+    "basic" : 1000,
     "swapDuration" : 1000,
     "stepDuration" : 500,
 }
@@ -11,6 +12,8 @@ const STARTING_POSITIONS = {
 function Sort(width, height, dataset) {
     this.width = width;
     this.height = height;
+
+    this.time = 0;
 
     var indexedArray = [];
     for (var i = 0; i < dataset.length; i++) {
@@ -122,16 +125,16 @@ Sort.prototype.compareBars = function (index1, index2, step, swap) {
 
     var selection = d3.selectAll(this.barSelector(index1) + ", " + this.barSelector(index2));
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
+    selection.transition(step).delay(step * SORT_ANIMATION.swapDuration).duration(1)
         .attr("stroke", "black").attr("stroke-width", 2);
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
+    selection.transition(step).delay(step * SORT_ANIMATION.swapDuration + INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
         .attr("fill", (swap ? "red" : "green"));
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 2*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
+    selection.transition(step).delay(step * SORT_ANIMATION.swapDuration + 2*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.3 * SORT_ANIMATION.swapDuration)
         .attr("fill", "cornflowerblue");
 
-    selection.transition().delay(step * SORT_ANIMATION.swapDuration + 3*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.1 * SORT_ANIMATION.swapDuration)
+    selection.transition(step).delay(step * SORT_ANIMATION.swapDuration + 3*INTERNAL_DELAY * SORT_ANIMATION.swapDuration).duration(0.1 * SORT_ANIMATION.swapDuration)
         .attr("stroke", "none");
 /*    d3.select(this.barSelector(index1))
         .transition().delay(step * SORT_ANIMATION.swapDuration).duration(1)
@@ -158,13 +161,13 @@ Sort.prototype.selectElement = function(index, step) {
 
 Sort.prototype.setMinimum = function (index, step) {
 
+    var INTERNAL_DELAY = 0.25;
+
     var selection = d3.selectAll(this.barSelector(index));
     var textSvg = d3.select("#sorting-minimum");
 
-    console.log(Number(selection.attr("x")) + Number(selection.attr("width")/2) - 5);
-
     textSvg
-        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
+        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(INTERNAL_DELAY*SORT_ANIMATION.swapDuration)
         .attr("x", (this.x.bandwidth()*index) + (sort.x.paddingInner()*sort.x.step() * index)  + this.x.bandwidth()/2 - 5)
         .attr("y", STARTING_POSITIONS.sortingMinimumY)
 
@@ -181,13 +184,13 @@ Sort.prototype.swapBars = function (index1, index2, step) {
 
     bar1
         .attr("start-index", index2)
-        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
+        .transition(step).delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
         .attr("x", x(index2));
     
     bar2
         .attr("start-index", index1)
-        .transition().delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
-        .attr("x", x(index1));    
+        .transition(step).delay(step * SORT_ANIMATION.swapDuration).duration(SORT_ANIMATION.swapDuration)
+        .attr("x", x(index1));     
 }
 
 Sort.prototype.barSelector = function (number) {
@@ -195,6 +198,15 @@ Sort.prototype.barSelector = function (number) {
 }
 
 Sort.prototype.sortAnimate = function (sortSteps) {
+
+    var self = this;
+
+    this.timer = setInterval(function() {
+        console.log(self.time);
+        self.time += 100;
+    }, 100);
+
+    console.log(sortSteps);
     for (var i = 0; i < sortSteps.length; i++) {
         var step = sortSteps[i];
         if (step.action == "compare") {
@@ -208,3 +220,10 @@ Sort.prototype.sortAnimate = function (sortSteps) {
         }
     }
 }
+
+Sort.prototype.cancelAll = function () {
+    console.log(this.time);
+    //for (var i = 10; i < 59; i++)
+    //d3.selectAll("rect").interrupt(i);
+}
+
