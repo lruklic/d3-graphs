@@ -15,6 +15,13 @@ function Sort(width, height, dataset) {
 
     this.time = 0;
 
+    this.control = {
+        "time" : 0,
+        "timer" : null,
+        "step" : 0,
+        "pause" : false
+    };
+
     var indexedArray = [];
     for (var i = 0; i < dataset.length; i++) {
         indexedArray.push({"index" : i, "value" : dataset[i]});
@@ -199,16 +206,19 @@ Sort.prototype.barSelector = function (number) {
 
 Sort.prototype.sortAnimate = function (sortSteps) {
 
-    var self = this;
+    //if (!this.sortSteps) {
+        this.sortSteps = sortSteps;
+    //}
 
-    this.timer = setInterval(function() {
-        console.log(self.time);
-        self.time += 100;
+    var self = this;
+    this.control.timer = setInterval(function() {
+        //console.log(self.control.time);
+        self.control.time += 100;
     }, 100);
 
     console.log(sortSteps);
-    for (var i = 0; i < sortSteps.length; i++) {
-        var step = sortSteps[i];
+    for (var i = 0; i < this.sortSteps.length; i++) {
+        var step = this.sortSteps[i];
         if (step.action == "compare") {
             this.compareBars(step.index1, step.index2, i, step.swap);
         } else if (step.action == "swap") {
@@ -221,9 +231,32 @@ Sort.prototype.sortAnimate = function (sortSteps) {
     }
 }
 
-Sort.prototype.cancelAll = function () {
-    console.log(this.time);
-    //for (var i = 10; i < 59; i++)
-    //d3.selectAll("rect").interrupt(i);
+Sort.prototype.pause = function () {
+    var pauseStep = Math.floor(this.control.time / SORT_ANIMATION.basic) + 1;
+    
+    this.control.step = pauseStep;
+    this.control.pause = true;
+    clearTimeout(this.control.timer);
+
+    for (var i = pauseStep; i < this.sortSteps.length; i++) {
+        d3.selectAll("rect").interrupt(i);
+    }
+}
+
+Sort.prototype.resume = function () {
+
+    var resumedSortSteps = this.control.step;
+
+   // reset bar start-index
+    var bars = d3.selectAll("rect").nodes().sort(function(a, b) {
+        return Number(d3.select(a).attr("x")) - Number(d3.select(b).attr("x"))
+    });
+    for (var i = 0; i < bars.length; i++) {
+        d3.select(bars[i]).attr("start-index", i);
+    }
+
+    this.control.time = 0;
+
+    this.sortAnimate(this.sortSteps.slice(resumedSortSteps));
 }
 
